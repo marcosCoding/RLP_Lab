@@ -5,7 +5,7 @@
 function sessio3(serPort)
 
 		%bug1(serPort,[3.5,-1]);
-		bug1(serPort,[-1,-3]);
+		bug1(serPort,[3.5, 0]);
 	
 		function bug1(serPort,objectiu)
 			obstacle=false;
@@ -21,7 +21,7 @@ function sessio3(serPort)
 				 distDerecha= ReadSonarMultiple(serPort,1);
            		 distFrontal = ReadSonarMultiple(serPort,2)
            		 distIzquierda = ReadSonarMultiple(serPort,3);
-				if distDerecha < 0.5 && distIzquierda < 0.5  && distFrontal < 0.5 
+				if distDerecha < 0.2 || distIzquierda < 0.2  || distFrontal < 0.2 
 					trobat=true; 
 				else
 					trobat =false;
@@ -38,6 +38,11 @@ function sessio3(serPort)
 				 SetDriveWheelsCreate(serPort,.5,.5);
 				 pause(0.000001);
 			end 
+			
+			if hayObstaculo()
+				SetDriveWheelsCreate(serPort,.0,.0);
+				pause(0.000001);
+			end
 
 		end
 		
