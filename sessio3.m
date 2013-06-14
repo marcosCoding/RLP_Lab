@@ -5,7 +5,7 @@
 function sessio3(serPort)
 
 		%bug1(serPort,[3.5,-1]);
-		bug1(serPort,[3.5,1]);
+		bug1(serPort,[-1,-3]);
 	
 		function bug1(serPort,objectiu)
 			obstacle=false;
@@ -15,26 +15,32 @@ function sessio3(serPort)
                  BumpsWheelDropsSensorsRoomba(serPort);
             [x, y, anguloRads]=OverheadLocalizationCreate(serPort);
 			DecisionAnguloGiro(x, y, anguloRads,objectiu);
+			
 			function trobat=hayObstaculo()
+				 trobat=false;
 				 distDerecha= ReadSonarMultiple(serPort,1);
            		 distFrontal = ReadSonarMultiple(serPort,2)
            		 distIzquierda = ReadSonarMultiple(serPort,3);
-				 if distDerecha < 0.5 && distIzquierda < 0.5  && distFrontal < 0.5 
-					return true;
-				 end
-				 else
-					return false
+				if distDerecha < 0.5 && distIzquierda < 0.5  && distFrontal < 0.5 
+					trobat=true; 
+				else
+					trobat =false;
 				end
+
 			end
 			
 			while ~hayObstaculo() && ~hemArribat([x, y], objectiu)
 				fprintf('bucle principal');
+				[x, y]=OverheadLocalizationCreate(serPort);
 				%[BumpRight,BumpLeft,WheDropRight,WheDropLeft,WheDropCaster,BumpFront] = ...     
                  %BumpsWheelDropsSensorsRoomba(serPort);
                  %[x, y, anguloRads]=OverheadLocalizationCreate(serPort);
+				 SetDriveWheelsCreate(serPort,.5,.5);
+				 pause(0.000001);
 			end 
 
 		end
+		
 		function followBoundary(serPort,objectiu)
 			
 		
@@ -47,8 +53,8 @@ function sessio3(serPort)
 
 			 distancia=sqrt( ((objectiu(1)-posicioActual(1)).^2)...
 						    + ((objectiu(2)-posicioActual(2)).^2)...
-						   );
-			 %distancia;
+						   )
+			 % distancia;
 			 if distancia < 0.2
 			 	distancia=true;
 			 else 
@@ -59,7 +65,7 @@ function sessio3(serPort)
 		
 		function valor=Entre(sensor,Valorinferior,Valorsuperior)
 			if sensor > Valorinferior && sensor < Valorsuperior
-				valor=1;%se cumple
+				valor=1;% se cumple
 			else
 				valor=0;
 			end
@@ -173,4 +179,4 @@ function sessio3(serPort)
 			end
 		end
 end
-end
+
