@@ -16,18 +16,7 @@ function sessio3(serPort)
             [x, y, anguloRads]=OverheadLocalizationCreate(serPort);
 			DecisionAnguloGiro(x, y, anguloRads,objectiu);
 			
-			function trobat=hayObstaculo()
-				 trobat=false;
-				 distDerecha= ReadSonarMultiple(serPort,1);
-           		 distFrontal = ReadSonarMultiple(serPort,2)
-           		 distIzquierda = ReadSonarMultiple(serPort,3);
-				if distDerecha < 0.2 || distIzquierda < 0.2  || distFrontal < 0.2 
-					trobat=true; 
-				else
-					trobat =false;
-				end
-
-			end
+		
 			
 			while ~hayObstaculo() && ~hemArribat([x, y], objectiu)
 				fprintf('bucle principal');
@@ -43,12 +32,41 @@ function sessio3(serPort)
 				SetDriveWheelsCreate(serPort,.0,.0);
 				pause(0.000001);
 			end
+			followBoundary(serPort,objectiu);
+			
 
 		end
+		%% ERROR!!!
+		function preFollowBoundary ()
+			distanciaActual=0;
+			distanciaBest=100;
+			anguloBest=0;
+			fprintf('Inicializamos preFollowBoundary');
+			turnAngle(serPort, .2,0)
+			i=0;
+			while i <= 24
+				[x, y, anguloRads]=OverheadLocalizationCreate(serPort);
+				anguloActual=pasarAGrados(anguloRads);
+				turnAngle(serPort, .2,i);
+				i=i+0.2;
+				distanciaActual=ReadSonarMultiple(serPort,1); % Sonar derecho
+				pause(0.000001);
+				if distanciaActual < distanciaBest
+					distanciaBest=distanciaActual;
+					anguloBest=anguloActual;
+				end	
+			end
+			anguloBest
+			fprintf('SALGO DEL FOR');
+			return;
+			turnAngle(serPort, .2,anguloBest);
+		end
+				
+		
 		
 		function followBoundary(serPort,objectiu)
-			
-		
+			fprintf('Inicializamos FollowBoundary');
+		preFollowBoundary();
 		   	
 		   		
             
@@ -86,6 +104,18 @@ function sessio3(serPort)
            	end
 
 		end
+			function trobat=hayObstaculo()
+				 trobat=false;
+				 distDerecha= ReadSonarMultiple(serPort,1);
+           		 distFrontal = ReadSonarMultiple(serPort,2)
+           		 distIzquierda = ReadSonarMultiple(serPort,3);
+				if distDerecha < 0.2 || distIzquierda < 0.2  || distFrontal < 0.2 
+					trobat=true; 
+				else
+					trobat =false;
+				end
+
+			end
 		function recalcularAngulo(serPort)
 			
 			[x, y, anguloRads]=OverheadLocalizationCreate(serPort);
