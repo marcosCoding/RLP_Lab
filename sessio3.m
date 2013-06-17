@@ -4,7 +4,7 @@
 
 function sessio3(serPort)
 
-		bug1(serPort,[5,-4]);
+		bug1(serPort,[-4,-4]);
 		
 		function bug1(serPort,objectiu)
 			obstacle=false;
@@ -92,7 +92,7 @@ function sessio3(serPort)
 				if distanciaDerecha > 0.4
 					SetDriveWheelsCreate(serPort,.0,.0);
 					pause(2);
-					turnAngle(serPort, .2,-20);
+					turnAngle(serPort, .2,-15);
 					if distanciaDerecha > 0.4
 						travelDist(serPort,0.1,0.1);
 					end
@@ -204,7 +204,8 @@ function sessio3(serPort)
 				anguloGiro=pasarAGrados(anguloGiro)
 				anguloGiro=abs(180+anguloGiro)
 				turnAngle(serPort, .2,anguloGiro);
-			else                                    	% cuarto cuadrande
+			else
+				pause(2);					% cuarto cuadrande
 				catetoContiguo=abs(objectiu(1)-x);
 				catetoOpuesto=abs(objectiu(2)-y);
 				anguloGiro=atan(catetoOpuesto/catetoContiguo);
