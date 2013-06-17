@@ -6,6 +6,7 @@ function sessio3(serPort)
 
 		bug1(serPort,[-4,-4]);
 		
+		
 		function bug1(serPort,objectiu)
 			obstacle=false;
 			[BumpRight,BumpLeft,WheDropRight,WheDropLeft,WheDropCaster,BumpFront] = ...     
@@ -22,8 +23,30 @@ function sessio3(serPort)
 				SetDriveWheelsCreate(serPort,.0,.0);
 				
 			end
-			followBoundary(serPort,objectiu);
+			[x, y]=OverheadLocalizationCreate(serPort);
+			puntoInicialObstaculo=[x, y];
+			
+			followBoundary(serPort,objectiu,puntoInicialObstaculo);
 		end
+		
+		function retorno= vueltaCompleta(x_actual, y_actual,puntoInicialObstaculo)
+		% Nos avisa que hemos rodeado por completo el obstáculo.
+		% Entrada (x,y) y nos devuelve boolean.
+		% True si puntoInicialObstaculo=[x_actual, y_actual] con un margen de ~0.50.
+		
+		dx = x_actual-puntoInicialObstaculo(1);
+		dy = y_actual-puntoInicialObstaculo(2);
+		retorno = false;
+		
+			if valorAbsoluto(dx) <= 0.5 && valorAbsoluto(dy) <= 0.5
+				retorno = true;
+			else
+				retorno = false;
+			end
+			
+		end
+		
+		
 		function preFollowBoundary()
 			% Una vez nos encontramos un obstaculo lo dejaremos a la derecha del robot.
 			% Para ello damos una vuelta de 360º sobre nuestro eje y vamos anotando los valores del sensor derecho
@@ -54,13 +77,20 @@ function sessio3(serPort)
          	end    				
 		end
 				
-		function followBoundary(serPort,objectiu)
+		function followBoundary(serPort,objectiu,puntoInicialObstaculo)
 			fprintf('Inicializamos FollowBoundary');
 			preFollowBoundary();
 			anguloInicial=getAnguloActual();
 			distanciaDerecha=ReadSonarMultiple(serPort,1);
-			
+			i=0;
 			while true
+				
+				[x_actual, y_actual]=OverheadLocalizationCreate(serPort);
+				if vueltaCompleta(x_actual, y_actual,puntoInicialObstaculo) && i > 50000
+				i
+				
+					return;
+				end
 				pause(0.0001);
 				distanciaDerecha=ReadSonarMultiple(serPort,1)
 				distanciaFrontal=ReadSonarMultiple(serPort,2);
@@ -74,7 +104,7 @@ function sessio3(serPort)
 				%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				if distanciaDerecha >= 0.20 && distanciaDerecha <= 0.40
 						SetDriveWheelsCreate(serPort,.1,.1);	
-
+						i=i+1;
 					if distanciaFrontal < 0.3
 						SetDriveWheelsCreate(serPort,.0,.0);
 						while true
